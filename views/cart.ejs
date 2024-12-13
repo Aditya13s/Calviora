@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart</title>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex flex-col bg-gray-50">
+
+<%- include('./partials/header') %>
+
+<% if (message.length > 0) { %>
+    <div class="absolute top-16 left-1/2 transform -translate-x-1/2 bg-green-100 text-green-800 border border-green-400 rounded-lg px-6 py-3 text-center z-10 shadow-lg max-w-md w-full">
+        <%= message %>
+    </div>
+<% } %>
+
+<div class="flex-grow flex flex-col md:flex-row mt-[4.5rem] px-4 py-6 gap-6">
+    <!-- Left Column: Cart Summary -->
+    <div class="w-full md:w-[30%] bg-white shadow-lg rounded-lg overflow-hidden">
+        <div class="w-full h-16 bg-yellow-500 flex items-center justify-center">
+            <h3 class="text-white text-xl font-medium">Your Cart</h3>
+        </div>
+
+        <% if (user.cart.length === 0) { %>
+            <div class="px-6 py-8 text-gray-700 font-medium text-center">Your cart is empty</div>
+        <% } else { %>
+            <div class="divide-y divide-gray-200">
+                <% user.cart.forEach((item) => { %>
+                    <div class="flex items-center gap-4 px-4 py-4">
+                        <div class="w-24 h-24 bg-[<%= item.productId.bgColor %>] flex items-center justify-center rounded-md overflow-hidden">
+                            <img class="max-w-full max-h-full object-contain p-0.5"
+                                 src="data:image/jpeg;base64,<%= item.productId.image.toString('base64') %>"
+                                 alt="<%= item.productId.name %>">
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-sm font-semibold text-[<%= item.productId.textColor %>] truncate"><%= item.productId.name %></h3>
+                            <p class="text-sm text-gray-600 mt-1">Price: ₹ <%= item.productId.price %></p>
+                            <p class="text-sm text-gray-600 mt-1">Discount: <%= item.productId.discount %>%</p>
+                            <div class="flex items-center mt-2">
+                                <form action="/cart/update" method="POST" class="flex items-center gap-2">
+                                    <input type="hidden" name="productId" value="<%= item.productId._id %>">
+                                    <button name="quantity" value="<%= item.quantity - 1 %>"
+                                            class="px-2 py-1 bg-gray-200 text-gray-600 rounded-md hover:bg-gray-300"
+                                            <%= item.quantity === 1 ? 'disabled' : '' %>>
+                                        -
+                                    </button>
+                                    <span id="quantity-<%= item.productId._id %>"
+                                          class="px-4"><%= item.quantity %></span>
+                                    <button name="quantity" value="<%= item.quantity + 1 %>"
+                                            class="px-2 py-1 bg-gray-200 text-gray-600 rounded-md hover:bg-gray-300"
+                                            <%= item.quantity === 5 ? 'disabled' : '' %>>
+                                        +
+                                    </button>
+                                    <button name="quantity" value="0" datatype="number"
+                                            class="px-2 py-1 bg-red-500 text-white rounded-md hover:bg-red-600">
+                                        Remove
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="text-gray-800 font-medium">
+                            ₹
+                            <span id="subtotal-<%= item.productId._id %>"><%= (item.productId.price - (item.productId.price * item.productId.discount / 100)) * item.quantity %></span>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        <% } %>
+    </div>
+
+    <!-- Right Column: Price Breakdown -->
+    <div class="w-full md:w-[70%] bg-white shadow-lg rounded-lg p-6">
+        <h3 class="text-lg font-medium mb-6 text-gray-800">Price Breakdown</h3>
+
+        <% if (user.cart.length === 0) { %>
+            <div class="text-center text-gray-600">Your cart is empty. Add items to see price breakdown.</div>
+        <% } else { %>
+            <div class="space-y-4">
+                <div class="flex justify-between text-gray-600">
+                    <span>Total MRP</span>
+                    <span>₹ <%= totalMRP %></span>
+                </div>
+                <div class="flex justify-between text-gray-600">
+                    <span>Total Discount</span>
+                    <span>₹ <%= totalDiscount %></span>
+                </div>
+                <div class="flex justify-between text-gray-600">
+                    <span>Platform Fee</span>
+                    <span>₹ 20</span>
+                </div>
+                <div class="flex justify-between text-gray-600">
+                    <span>Shipping Fee</span>
+                    <span class="text-green-600">FREE</span>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-200 my-4"></div>
+
+            <div class="flex justify-between items-center mb-6">
+                <h4 class="text-lg font-medium text-gray-800">Total Amount</h4>
+                <h4 class="text-lg font-semibold text-green-600">
+                    ₹ <%= finalTotal %>
+                </h4>
+            </div>
+
+            <button id="checkoutBtn"
+                    class="w-full py-3 bg-blue-600 text-white text-lg font-medium rounded-md shadow-md hover:bg-blue-700 transition duration-200">
+                Proceed to Checkout
+            </button>
+        <% } %>
+    </div>
+</div>
+
+<!-- Checkout Confirmation Modal -->
+<div id="checkoutModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50 hidden">
+    <div class="bg-white w-full md:w-[50%] p-6 rounded-lg shadow-lg">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Confirm Your Order</h2>
+
+        <div class="space-y-4">
+            <div class="flex justify-between">
+                <span class="text-gray-600">Total MRP</span>
+                <span>₹ <%= totalMRP %></span>
+            </div>
+            <div class="flex justify-between">
+                <span class="text-gray-600">Total Discount</span>
+                <span>₹ <%= totalDiscount %></span>
+            </div>
+            <div class="flex justify-between">
+                <span class="text-gray-600">Platform Fee</span>
+                <span>₹ 20</span>
+            </div>
+            <div class="flex justify-between">
+                <span class="text-gray-600">Shipping Fee</span>
+                <span class="text-green-600">FREE</span>
+            </div>
+            <div class="border-t border-gray-200 my-4"></div>
+            <div class="flex justify-between items-center">
+                <h4 class="text-lg font-medium text-gray-800">Total Amount</h4>
+                <h4 class="text-lg font-semibold text-green-600">
+                    ₹ <%= finalTotal %>
+                </h4>
+            </div>
+        </div>
+
+        <div class="flex justify-between mt-6">
+            <button type="button" id="cancelCheckout"
+                    class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400">Cancel
+            </button>
+            <form action="/checkout" method="POST">
+                <button type="submit"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                    Confirm Order
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<%- include('./partials/footer') %>
+
+<script>
+    // Show modal when user clicks "Proceed to Checkout"
+    const checkoutBtn = document.getElementById('checkoutBtn');
+    const checkoutModal = document.getElementById('checkoutModal');
+    const cancelBtn = document.getElementById('cancelCheckout');
+
+    checkoutBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        checkoutModal.classList.remove('hidden');
+    });
+
+    cancelBtn.addEventListener('click', () => {
+        checkoutModal.classList.add('hidden');
+    });
+</script>
+
+</body>
+</html>

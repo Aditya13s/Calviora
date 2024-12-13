@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calviora</title>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex flex-col max-h-screen bg-gray-50">
+
+<!-- Header -->
+<%- include('./partials/header') %>
+
+<% if (message.length > 0) { %>
+    <div class="absolute top-16 left-1/2 transform -translate-x-1/2 bg-green-100 text-green-800 border border-green-400 rounded-lg px-6 py-3 text-center z-10 shadow-lg max-w-md w-full">
+        <%= message %>
+    </div>
+<% } %>
+
+<!-- Main Content -->
+<div class="flex-grow flex mt-[4.5rem] px-6 py-6 overflow-hidden">
+
+    <div class="mx-auto w-full flex space-x-6">
+
+        <!-- Sidebar -->
+        <aside class="w-[25%] p-6 bg-white shadow-lg rounded-lg sticky top-[4.5rem]">
+            <!-- Sorting Section -->
+            <div class="flex items-center gap-3 mb-6">
+                <h3 class="text-gray-800 font-semibold">Sort by</h3>
+                <form action="/shop" class="flex">
+                    <select name="sortby"
+                            class="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200">
+                        <option value="popular">Popular</option>
+                        <option value="newest">Newest</option>
+                    </select>
+                </form>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="mt-12 flex flex-col space-y-3">
+                <a href="#" class="text-gray-700 font-medium hover:text-blue-600 transition duration-200">New
+                    Collection</a>
+                <a href="#" class="text-gray-700 font-medium hover:text-blue-600 transition duration-200">All
+                    Products</a>
+                <a href="#" class="text-gray-700 font-medium hover:text-blue-600 transition duration-200">Discounted
+                    Products</a>
+            </nav>
+
+            <!-- Filter Section -->
+            <div class="mt-12">
+                <h3 class="text-gray-800 font-semibold mb-4">Filter by -</h3>
+                <nav class="flex flex-col space-y-3">
+                    <a href="#" class="text-gray-700 font-medium hover:text-blue-600 transition duration-200">Availability</a>
+                    <a href="#"
+                       class="text-gray-700 font-medium hover:text-blue-600 transition duration-200">Discount</a>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Main Content (Products) -->
+        <div class="w-[75%] flex flex-col gap-5 overflow-y-auto max-h-screen custom-scrollbar">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 px-2">
+                <% products.forEach(product => { %>
+                    <div class="w-full bg-white rounded-lg shadow-lg overflow-hidden">
+                        <div class="w-full flex items-center justify-center"
+                             style="height: 200px; background-color: <%= product.bgColor %>;">
+                            <img class="max-w-full max-h-full object-contain p-3"
+                                 src="data:image/jpeg;base64,<%= product.image.toString('base64') %>"
+                                 alt="<%= product.name %>">
+                        </div>
+                        <div class="flex-grow bg-[<%= product.panelColor %>] flex flex-col justify-between p-4 text-[<%= product.textColor %>]">
+
+                            <div>
+                                <h3 class="font-semibold text-lg"><%= product.name %></h3>
+                                <div class="flex items-center gap-3">
+                                    <h4 class="text-xl font-semibold">₹ <%= product.price %></h4>
+
+                                    <!-- Discount Capsule -->
+                                    <% if (product.discount > 0) { %>
+                                        <span class="bg-[<%= product.textColor %>] text-white text-sm font-semibold py-1 px-3 rounded-full">
+                                            -<%= product.discount %>%
+                                        </span>
+                                    <% } %>
+                                </div>
+                            </div>
+                            <a class="w-7 h-7 flex items-center justify-center rounded-full bg-white shadow-md hover:bg-gray-100"
+                               href="/cart/add/<%= product.id %>" methods="post">
+                                <i class="ri-add-line text-blue-500"></i>
+                            </a>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Footer -->
+<%- include('./partials/footer') %>
+
+</body>
+</html>

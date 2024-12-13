@@ -1,0 +1,22 @@
+<header>
+    <nav class="w-full flex justify-between items-center fixed top-0 left-0 bg-gray-800 px-5 py-3 shadow-md z-50">
+        <h3 class="text-xl text-center text-white font-semibold">
+            Calviora
+        </h3>
+        <% var loggedIn = typeof loggedIn !== "undefined" ? loggedIn : false; %>
+
+        <% if(loggedIn === true) { %>
+            <div class="flex space-x-4">
+                <a href="/shop"
+                   class="px-4 text-white font-semibold transition duration-300 ease-in-out hover:text-gray-300 transform">Shop</a>
+                <a href="/cart"
+                   class="px-4 text-white font-semibold transition duration-300 ease-in-out hover:text-gray-300 transform">Cart</a>
+                <a href="/account"
+                   class="px-4 text-white font-semibold transition duration-300 ease-in-out hover:text-gray-300 transform">My
+                    Account</a>
+                <a href="/users/logout"
+                   class="px-4 text-red-500 font-semibold transition duration-300 ease-in-out hover:text-red-400 transform">Logout</a>
+            </div>
+        <% } %>
+    </nav>
+</header>

@@ -1,7 +1,9 @@
 const mongoose = require('mongoose');
+const config = require('config');
+const debug = require('debug')('development:mongoose');
 
-mongoose.connect("mongodb://localhost:27017/Calviora").then(_ => {
-    console.log("Connected to mongodb");
+mongoose.connect(`${config.get("MONGODB_URI")}/Calviora`).then(_ => {
+    debug("Connected to mongodb");
 }).catch(err => {
     console.log(err);
 });

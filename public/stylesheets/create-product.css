@@ -1,0 +1,4 @@
+.color-preview {
+    background-color: #ffffff; /* Default color if no input is filled */
+    border: 1px solid #ccc; /* Light border for the preview box */
+}

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Account</title>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex flex-col bg-gray-50">
+
+<%- include('./partials/header') %>
+
+<!-- Flash Message Section -->
+<% if (message.length > 0) { %>
+    <div class="absolute top-16 left-1/2 transform -translate-x-1/2 bg-green-100 text-green-800 border border-green-400 rounded-lg px-6 py-3 text-center z-10 shadow-lg max-w-md w-full">
+        <%= message %>
+    </div>
+<% } %>
+
+<div class="flex-grow flex flex-col md:flex-row mt-[4.5rem] px-4 py-6 gap-6">
+    <!-- Left Column: User Profile -->
+    <div class="w-full md:w-[30%] bg-white shadow-lg rounded-lg overflow-hidden">
+        <div class="w-full h-16 bg-yellow-500 flex items-center justify-center">
+            <h3 class="text-white text-xl font-medium">My Account</h3>
+        </div>
+
+        <div class="p-6">
+            <div class="space-y-4">
+                <% if (user.fullName) { %>
+                    <div class="flex justify-between text-gray-600">
+                        <span>Name</span>
+                        <span><%= user.fullName %></span>
+                    </div>
+                <% } %>
+                <div class="flex justify-between text-gray-600">
+                    <span>Email</span>
+                    <span><%= user.email %></span>
+                </div>
+                <% if (user.phone) { %>
+                    <div class="flex justify-between text-gray-600">
+                        <span>Phone</span>
+                        <span><%= user.phone %></span>
+                    </div>
+                <% } %>
+                <% if (user.address) { %>
+                    <div class="flex justify-between text-gray-600">
+                        <span>Address</span>
+                        <span><%= user.address %></span>
+                    </div>
+                <% } %>
+            </div>
+
+            <div class="mt-6">
+                <button id="editProfileBtn"
+                        class="w-full py-3 bg-yellow-500 text-white text-lg font-medium rounded-md shadow-md hover:bg-yellow-600 transition duration-200">
+                    Edit Profile
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- Right Column: Order History -->
+    <div class="w-full md:w-[70%] bg-white shadow-lg rounded-lg p-6">
+        <h3 class="text-lg font-medium mb-6 text-gray-800">Order History</h3>
+
+        <% if (orders && orders.length > 0) { %>
+            <div class="space-y-4">
+                <% orders.forEach(order => { %>
+                    <div class="border-b border-gray-200 pb-4">
+                        <div class="flex justify-between text-gray-600">
+                            <span>Order #<%= order._id %></span>
+                            <span class="font-semibold text-gray-800">₹ <%= order.totalAmount %></span>
+                        </div>
+                        <div class="text-sm text-gray-500 mt-2">
+                            <span>Status: <%= order.status %></span>
+                        </div>
+                        <div class="flex items-center mt-2 gap-4">
+                            <button class="view-details-btn text-blue-600 hover:underline"
+                                    data-order='<%= JSON.stringify(order) %>'>
+                                View Details
+                            </button>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        <% } else { %>
+            <div class="text-center text-gray-600">You have no orders yet.</div>
+        <% } %>
+    </div>
+</div>
+
+<div id="editProfileModal" class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 hidden">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+        <div class="flex justify-between items-center">
+            <h3 class="text-xl font-semibold text-gray-800">Edit Profile</h3>
+            <button id="cancelEditBtn" class="text-gray-500 hover:text-red-500">&times;</button>
+        </div>
+        <form action="/users/update" method="POST" class="mt-4 space-y-4">
+            <div>
+                <label for="fullName" class="block text-gray-600">Full Name</label>
+                <input type="text" id="fullName" name="fullName" value="<%= user.fullName %>"
+                       class="w-full border rounded-md px-3 py-2 mt-1" readonly>
+            </div>
+            <div>
+                <label for="email" class="block text-gray-600">Email</label>
+                <input type="email" id="email" name="email" value="<%= user.email %>"
+                       class="w-full border rounded-md px-3 py-2 mt-1" readonly>
+            </div>
+            <div>
+                <label for="phone" class="block text-gray-600">Phone</label>
+                <input type="text" id="phone" name="phone" value="<%= user.phone || '' %>"
+                       class="w-full border rounded-md px-3 py-2 mt-1" pattern="^[0-9]{10}$" maxlength="10" required>
+            </div>
+            <div>
+                <label for="address" class="block text-gray-600">Address</label>
+                <input type="text" id="address" name="address" value="<%= user.address || '' %>"
+                       class="w-full border rounded-md px-3 py-2 mt-1" required>
+            </div>
+            <button type="submit"
+                    class="w-full bg-yellow-500 text-white py-3 rounded-lg shadow-md hover:bg-yellow-600 transition">
+                Save Changes
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Order Details Dialog -->
+<dialog id="orderDetailsDialog" class="max-w-lg mx-auto p-6 rounded-lg shadow-lg">
+    <div class="space-y-4">
+        <h3 class="text-xl font-semibold">Order Details</h3>
+        <div id="orderDetailsContent" class="text-gray-700"></div>
+        <button id="closeDetailsBtn" class="mt-4 py-2 px-4 bg-red-500 text-white rounded-md">Close</button>
+    </div>
+</dialog>
+
+
+<script>
+    const viewDetailsBtns = document.querySelectorAll('.view-details-btn');
+    const orderDetailsDialog = document.getElementById('orderDetailsDialog');
+    const orderDetailsContent = document.getElementById('orderDetailsContent');
+    const closeDetailsBtn = document.getElementById('closeDetailsBtn');
+    const editProfileBtn = document.getElementById('editProfileBtn');
+    const editProfileModal = document.getElementById('editProfileModal');
+    const cancelEditBtn = document.getElementById('cancelEditBtn');
+
+    // Open modal
+    editProfileBtn.addEventListener('click', () => {
+        editProfileModal.classList.remove('hidden');
+    });
+
+    // Close modal
+    cancelEditBtn.addEventListener('click', () => {
+        editProfileModal.classList.add('hidden');
+    });
+
+    // Close modal when clicking outside
+    editProfileModal.addEventListener('click', (e) => {
+        if (e.target === editProfileModal) {
+            editProfileModal.classList.add('hidden');
+        }
+    });
+
+    // Show order details in a dialog
+    viewDetailsBtns.forEach(btn => {
+        btn.addEventListener('click', function () {
+            const order = JSON.parse(this.getAttribute('data-order'));
+
+            // Check if there are products in the order
+            const productsList = order.products && order.products.length > 0 ?
+                order.products.map(product => `
+                    <li>${product.productId.name} (₹${product.productId.price}) - Quantity: ${product.quantity}</li>
+                `).join('') :
+                '<li>No products available</li>';
+
+            orderDetailsContent.innerHTML = `
+                <div><strong>Order ID:</strong> ${order._id}</div>
+                <div><strong>Total Amount:</strong> ₹${order.totalAmount}</div>
+                <div><strong>Order Date:</strong> ${new Date(order.orderDate).toLocaleDateString()}</div>
+                <div><strong>Status:</strong> ${order.status}</div>
+                <div><strong>Products:</strong>
+                    <ul class="mt-2">
+                        ${productsList}
+                    </ul>
+                </div>
+            `;
+
+            orderDetailsDialog.showModal();
+        });
+    });
+
+    // Close order details dialog
+    closeDetailsBtn.addEventListener('click', () => {
+        orderDetailsDialog.close();
+    });
+</script>
+
+</body>
+</html>
