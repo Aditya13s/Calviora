@@ -10,7 +10,7 @@ router.get('/', (req, res) => {
     if (req.session.isLoggedIn) {
         return res.redirect('/owners/admin');
     }
-    return res.render("owner-login", message);
+    return res.render("owner-login", {message});
 });
 
 router.post('/login', verifyOwner);
