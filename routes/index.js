@@ -1,14 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const isLoggedIn = require('../middlewares/isLoggedIn')
-const isAlreadyLoggedIn = require('../middlewares/isAlreadyLoggedIn')
+const isLoggedIn = require('../middlewares/isLoggedIn');
+const isAlreadyLoggedIn = require('../middlewares/isAlreadyLoggedIn');
 const productModel = require('../models/product-model');
 const userModel = require('../models/user-model');
 const mongoose = require('mongoose');
 const orderModel = require('../models/order-model');
 
 router.get('/', isAlreadyLoggedIn, (req, res) => {
-    let message = req.flash('message');
+    const message = req.flash('message');
     res.render('index', {message});
 });
 
@@ -69,7 +69,7 @@ router.post('/checkout', isLoggedIn, async (req, res) => {
 
 router.get('/cart', isLoggedIn, async (req, res) => {
     try {
-        let user = await userModel.findOne({email: req.user.email})
+        const user = await userModel.findOne({email: req.user.email})
             .populate('cart.productId');
         let totalMRP = 0, totalDiscount = 0, netTotal = 0;
 
@@ -87,7 +87,7 @@ router.get('/cart', isLoggedIn, async (req, res) => {
         const platformFee = 20;
         const finalTotal = netTotal + platformFee;
 
-        let message = req.flash('message');
+        const message = req.flash('message');
         // Render the 'cart' page with calculated totals and user data
         res.render('cart', {
             loggedIn: true,
@@ -103,7 +103,7 @@ router.get('/cart', isLoggedIn, async (req, res) => {
     }
 });
 
-router.get("/cart/add/:productid", isLoggedIn, async (req, res) => {
+router.get('/cart/add/:productid', isLoggedIn, async (req, res) => {
     try {
         const productId = req.params.productid;
 
@@ -114,7 +114,7 @@ router.get("/cart/add/:productid", isLoggedIn, async (req, res) => {
         }
 
 
-        let user = await userModel.findOne({email: req.user.email});
+        const user = await userModel.findOne({email: req.user.email});
         if (!user) {
             req.flash('message', 'User not found. Please log in again.');
             return res.redirect('/users/logout');
@@ -136,7 +136,7 @@ router.get("/cart/add/:productid", isLoggedIn, async (req, res) => {
 
 
         await user.save();
-        req.flash('message', "Product added to cart.");
+        req.flash('message', 'Product added to cart.');
         res.redirect('/shop');
 
     } catch (error) {
@@ -189,8 +189,8 @@ router.post('/cart/update', isLoggedIn, async (req, res) => {
 });
 
 router.get('/shop', isLoggedIn, async (req, res) => {
-    let products = await productModel.find();
-    let message = req.flash('message');
+    const products = await productModel.find();
+    const message = req.flash('message');
     res.render('shop', {products, message, loggedIn: true});
 });
 

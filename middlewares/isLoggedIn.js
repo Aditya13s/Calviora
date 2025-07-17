@@ -9,10 +9,10 @@ module.exports = async (req, res, next) => {
     }
 
     try {
-        let decodedToken = jsonwebtoken.verify(token, process.env.JWT_KEY);
-        let user = await userModel
+        const decodedToken = jsonwebtoken.verify(token, process.env.JWT_KEY);
+        const user = await userModel
             .findOne({email: decodedToken.email})
-            .select("-password");
+            .select('-password');
 
         if (!user) {
             return res.redirect('/users/logout');
@@ -21,7 +21,7 @@ module.exports = async (req, res, next) => {
         req.user = user;
         next();
     } catch (error) {
-        req.flash("message", "Something went wrong");
+        req.flash('message', 'Something went wrong');
         return res.redirect('/');
     }
 };
