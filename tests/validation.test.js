@@ -1,4 +1,8 @@
-const { validateEnvironment, sanitizeInput, validationRules } = require('../utils/validation');
+const {
+    validateEnvironment,
+    sanitizeInput,
+    validationRules,
+} = require('../utils/validation');
 
 describe('Validation Utils', () => {
     describe('validateEnvironment', () => {
@@ -24,7 +28,9 @@ describe('Validation Utils', () => {
             delete process.env.MONGODB_URI;
             delete process.env.EXPRESS_SESSION_SECRET;
 
-            expect(() => validateEnvironment()).toThrow('Missing required environment variables');
+            expect(() => validateEnvironment()).toThrow(
+                'Missing required environment variables'
+            );
         });
     });
 

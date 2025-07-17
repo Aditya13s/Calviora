@@ -1,6 +1,8 @@
+require('dotenv').config();
+
 const express = require('express');
 const app = express();
-const db = require('./config/mongoose-connection');
+const db = require('./config/mongoose-connection'); // eslint-disable-line no-unused-vars
 
 const cookieParser = require('cookie-parser');
 const path = require('path');
@@ -12,19 +14,19 @@ const compression = require('compression');
 const morgan = require('morgan');
 const cors = require('cors');
 
-require('dotenv').config();
-
 // Security middleware
-app.use(helmet({
-    contentSecurityPolicy: {
-        directives: {
-            defaultSrc: ['\'self\''],
-            styleSrc: ['\'self\'', '\'unsafe-inline\''],
-            scriptSrc: ['\'self\''],
-            imgSrc: ['\'self\'', 'data:', 'https:'],
+app.use(
+    helmet({
+        contentSecurityPolicy: {
+            directives: {
+                defaultSrc: ["'self'"],
+                styleSrc: ["'self'", "'unsafe-inline'"],
+                scriptSrc: ["'self'"],
+                imgSrc: ["'self'", 'data:', 'https:'],
+            },
         },
-    },
-}));
+    })
+);
 
 // Rate limiting
 const limiter = rateLimit({
@@ -42,10 +44,12 @@ const authLimiter = rateLimit({
 });
 
 // CORS configuration
-app.use(cors({
-    origin: process.env.NODE_ENV === 'production' ? false : true,
-    credentials: true,
-}));
+app.use(
+    cors({
+        origin: process.env.NODE_ENV === 'production' ? false : true,
+        credentials: true,
+    })
+);
 
 // Compression middleware
 app.use(compression());
@@ -114,9 +118,10 @@ app.use((err, req, res, next) => {
 
     // Set default error values
     const status = err.status || 500;
-    const message = process.env.NODE_ENV === 'production'
-        ? 'Something went wrong!'
-        : err.message;
+    const message =
+        process.env.NODE_ENV === 'production'
+            ? 'Something went wrong!'
+            : err.message;
 
     res.status(status).render('error', {
         title: 'Error',

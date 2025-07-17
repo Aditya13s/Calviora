@@ -12,7 +12,9 @@ module.exports = async (req, res, next) => {
     try {
         const decodedToken = jsonwebtoken.verify(token, process.env.JWT_KEY);
 
-        const user = await userModel.findOne({email: decodedToken.email}).select('-password');
+        const user = await userModel
+            .findOne({ email: decodedToken.email })
+            .select('-password');
 
         if (user) {
             req.user = user;

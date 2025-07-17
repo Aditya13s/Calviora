@@ -9,7 +9,7 @@ const orderModel = require('../models/order-model');
 
 router.get('/', isAlreadyLoggedIn, (req, res) => {
     const message = req.flash('message');
-    res.render('index', {message});
+    res.render('index', { message });
 });
 
 router.get('/account', isLoggedIn, async (req, res) => {
@@ -17,11 +17,17 @@ router.get('/account', isLoggedIn, async (req, res) => {
         const user = await userModel.findById(req.user._id); // Assuming you have a logged-in user
 
         // Populate the products in each order
-        const orders = await orderModel.find({userId: user._id})
+        const orders = await orderModel
+            .find({ userId: user._id })
             .populate('products.productId'); // Populate the product data
 
         // Pass the orders to the view
-        res.render('account', {user, orders, loggedIn: true, message: req.flash('message')});
+        res.render('account', {
+            user,
+            orders,
+            loggedIn: true,
+            message: req.flash('message'),
+        });
     } catch (err) {
         req.flash('message', 'An error occurred while fetching orders');
         res.redirect('/shop');
@@ -30,7 +36,9 @@ router.get('/account', isLoggedIn, async (req, res) => {
 
 router.post('/checkout', isLoggedIn, async (req, res) => {
     try {
-        const user = await userModel.findOne({email: req.user.email}).populate('cart.productId');
+        const user = await userModel
+            .findOne({ email: req.user.email })
+            .populate('cart.productId');
 
         if (!user || !user.cart.length) {
             req.flash('message', 'Your cart is empty.');
@@ -38,8 +46,9 @@ router.post('/checkout', isLoggedIn, async (req, res) => {
         }
 
         // Prepare order details
-        const products = user.cart.map(item => ({
-            productId: item.productId._id, quantity: item.quantity
+        const products = user.cart.map((item) => ({
+            productId: item.productId._id,
+            quantity: item.quantity,
         }));
 
         const totalAmount = user.cart.reduce((total, item) => {
@@ -50,7 +59,9 @@ router.post('/checkout', isLoggedIn, async (req, res) => {
 
         // Create and save the order
         const newOrder = await orderModel.create({
-            userId: user._id, products, totalAmount
+            userId: user._id,
+            products,
+            totalAmount,
         });
 
         // Update user's orders and clear the cart
@@ -66,15 +77,17 @@ router.post('/checkout', isLoggedIn, async (req, res) => {
     }
 });
 
-
 router.get('/cart', isLoggedIn, async (req, res) => {
     try {
-        const user = await userModel.findOne({email: req.user.email})
+        const user = await userModel
+            .findOne({ email: req.user.email })
             .populate('cart.productId');
-        let totalMRP = 0, totalDiscount = 0, netTotal = 0;
+        let totalMRP = 0,
+            totalDiscount = 0,
+            netTotal = 0;
 
         // Loop through the user's cart and calculate totals
-        user.cart.forEach(item => {
+        user.cart.forEach((item) => {
             const price = item.productId.price;
             const discount = (price * item.productId.discount) / 100;
 
@@ -95,7 +108,7 @@ router.get('/cart', isLoggedIn, async (req, res) => {
             message,
             totalMRP: totalMRP.toFixed(2),
             totalDiscount: totalDiscount.toFixed(2),
-            finalTotal: finalTotal.toFixed(2)
+            finalTotal: finalTotal.toFixed(2),
         });
     } catch (error) {
         req.flash('message', 'An error occurred while fetching your cart.');
@@ -113,41 +126,46 @@ router.get('/cart/add/:productid', isLoggedIn, async (req, res) => {
             return res.redirect('/shop');
         }
 
-
-        const user = await userModel.findOne({email: req.user.email});
+        const user = await userModel.findOne({ email: req.user.email });
         if (!user) {
             req.flash('message', 'User not found. Please log in again.');
             return res.redirect('/users/logout');
         }
         const maxQuantity = 5;
 
-        const existingProduct = user.cart.find(item => item.productId.toString() === productId);
+        const existingProduct = user.cart.find(
+            (item) => item.productId.toString() === productId
+        );
         if (existingProduct) {
             if (existingProduct.quantity < maxQuantity) {
                 existingProduct.quantity += 1;
             } else {
-                req.flash('message', `You can add a maximum of ${maxQuantity} items of the same product.`);
+                req.flash(
+                    'message',
+                    `You can add a maximum of ${maxQuantity} items of the same product.`
+                );
                 return res.redirect('/shop');
             }
         } else {
             // Add new product with quantity 1
-            user.cart.push({productId, quantity: 1});
+            user.cart.push({ productId, quantity: 1 });
         }
-
 
         await user.save();
         req.flash('message', 'Product added to cart.');
         res.redirect('/shop');
-
     } catch (error) {
         console.log(error);
-        req.flash('message', 'An error occurred while adding the product to the cart.');
+        req.flash(
+            'message',
+            'An error occurred while adding the product to the cart.'
+        );
         res.redirect('/shop');
     }
 });
 
 router.post('/cart/update', isLoggedIn, async (req, res) => {
-    let {productId, quantity} = req.body;
+    let { productId, quantity } = req.body;
     quantity = parseInt(req.body.quantity, 10);
 
     // Validate inputs
@@ -156,14 +174,16 @@ router.post('/cart/update', isLoggedIn, async (req, res) => {
     }
 
     try {
-        const user = await userModel.findOne({email: req.user.email});
+        const user = await userModel.findOne({ email: req.user.email });
 
         if (!user) {
             return res.redirect('/cart');
         }
 
         // Find the product in the cart
-        const cartItemIndex = user.cart.findIndex(item => item.productId.toString() === productId);
+        const cartItemIndex = user.cart.findIndex(
+            (item) => item.productId.toString() === productId
+        );
 
         if (cartItemIndex === -1) {
             return res.redirect('/cart');
@@ -171,7 +191,7 @@ router.post('/cart/update', isLoggedIn, async (req, res) => {
 
         // If quantity is 0, remove the item from the cart
         if (quantity === 0) {
-            user.cart.splice(cartItemIndex, 1);  // Remove the item from the cart
+            user.cart.splice(cartItemIndex, 1); // Remove the item from the cart
         } else {
             // Otherwise, update the quantity
             user.cart[cartItemIndex].quantity = quantity;
@@ -191,7 +211,7 @@ router.post('/cart/update', isLoggedIn, async (req, res) => {
 router.get('/shop', isLoggedIn, async (req, res) => {
     const products = await productModel.find();
     const message = req.flash('message');
-    res.render('shop', {products, message, loggedIn: true});
+    res.render('shop', { products, message, loggedIn: true });
 });
 
 module.exports = router;

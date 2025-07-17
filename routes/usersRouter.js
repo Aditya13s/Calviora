@@ -1,6 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { registerUser, loginUser, logout } = require('../controllers/authController');
+const {
+    registerUser,
+    loginUser,
+    logout,
+} = require('../controllers/authController');
 const isLoggedIn = require('../middlewares/isLoggedIn');
 const userModel = require('../models/user-model');
 const { sanitizeInput } = require('../utils/validation');
@@ -18,26 +22,39 @@ router.post('/update', isLoggedIn, async (req, res) => {
 
         // Validate phone number if provided
         if (phone && !/^\d{10,15}$/.test(phone)) {
-            req.flash('message', 'Please provide a valid phone number (10-15 digits)');
+            req.flash(
+                'message',
+                'Please provide a valid phone number (10-15 digits)'
+            );
             return res.redirect('/account');
         }
 
         // Validate address length if provided
         if (address && address.length > 200) {
-            req.flash('message', 'Address cannot be longer than 200 characters');
+            req.flash(
+                'message',
+                'Address cannot be longer than 200 characters'
+            );
             return res.redirect('/account');
         }
 
         const updateData = {};
-        if (phone) {updateData.phone = phone;}
-        if (address) {updateData.address = address;}
+        if (phone) {
+            updateData.phone = phone;
+        }
+        if (address) {
+            updateData.address = address;
+        }
 
         await userModel.findByIdAndUpdate(req.user._id, updateData);
         req.flash('message', 'Your profile has been updated successfully!');
         res.redirect('/account');
     } catch (err) {
         console.error('Profile update error:', err);
-        req.flash('message', 'There was an error updating your profile. Please try again later.');
+        req.flash(
+            'message',
+            'There was an error updating your profile. Please try again later.'
+        );
         res.redirect('/account');
     }
 });

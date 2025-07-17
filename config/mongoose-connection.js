@@ -1,8 +1,6 @@
 const mongoose = require('mongoose');
 const { validateEnvironment } = require('../utils/validation');
 
-require('dotenv').config();
-
 // Validate required environment variables
 try {
     validateEnvironment();
@@ -21,11 +19,12 @@ const mongooseOptions = {
     family: 4, // Use IPv4, skip trying IPv6
 };
 
-mongoose.connect(MONGODB_URI, mongooseOptions)
+mongoose
+    .connect(MONGODB_URI, mongooseOptions)
     .then(() => {
         console.log('Connected to MongoDB');
     })
-    .catch(err => {
+    .catch((err) => {
         console.error('Error connecting to MongoDB:', err);
         process.exit(1);
     });

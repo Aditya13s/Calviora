@@ -6,7 +6,7 @@ const { sanitizeInput } = require('../utils/validation');
 
 module.exports.registerUser = async (req, res) => {
     try {
-        let { fullName, email, password } = req.body;
+        const { fullName, email, password } = req.body;
 
         // Sanitize inputs
         fullName = sanitizeInput(fullName);
@@ -19,7 +19,10 @@ module.exports.registerUser = async (req, res) => {
         }
 
         if (fullName.length < 3) {
-            req.flash('message', 'Full name must be at least 3 characters long');
+            req.flash(
+                'message',
+                'Full name must be at least 3 characters long'
+            );
             return res.redirect('/');
         }
 
@@ -43,18 +46,20 @@ module.exports.registerUser = async (req, res) => {
 
         const hash = await bcrypt.hash(password, 12); // Increased from 10 to 12 for better security
 
-        const createdUser = await userModel.create({
+        await userModel.create({
             fullName,
             email: email.toLowerCase(),
-            password: hash
+            password: hash,
         });
 
         req.flash('message', 'User created successfully. Please login');
         return res.redirect('/');
-
     } catch (err) {
         console.error('Registration error:', err);
-        req.flash('message', 'An error occurred during registration. Please try again.');
+        req.flash(
+            'message',
+            'An error occurred during registration. Please try again.'
+        );
         return res.redirect('/');
     }
 };
@@ -99,10 +104,12 @@ module.exports.loginUser = async (req, res) => {
         });
 
         return res.redirect('/shop');
-
     } catch (err) {
         console.error('Login error:', err);
-        req.flash('message', 'An error occurred during login. Please try again.');
+        req.flash(
+            'message',
+            'An error occurred during login. Please try again.'
+        );
         return res.redirect('/');
     }
 };
@@ -149,7 +156,10 @@ module.exports.verifyOwner = async (req, res) => {
         }
     } catch (err) {
         console.error('Owner verification error:', err);
-        req.flash('message', 'An error occurred during login. Please try again.');
+        req.flash(
+            'message',
+            'An error occurred during login. Please try again.'
+        );
         return res.redirect('/owners');
     }
 };

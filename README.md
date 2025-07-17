@@ -30,34 +30,38 @@ A modern, secure e-commerce platform built with Node.js, Express.js, and MongoDB
 ## Installation
 
 1. **Clone the repository**
-   ```bash
-   git clone https://github.com/Aditya13s/Calviora.git
-   cd Calviora
-   ```
+
+    ```bash
+    git clone https://github.com/Aditya13s/Calviora.git
+    cd Calviora
+    ```
 
 2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+
+    ```bash
+    npm install
+    ```
 
 3. **Set up environment variables**
    Create a `.env` file in the root directory:
-   ```env
-   MONGODB_URI=mongodb://localhost:27017/calviora
-   EXPRESS_SESSION_SECRET=your-super-secret-session-key
-   JWT_SECRET=your-jwt-secret-key
-   NODE_ENV=development
-   PORT=3000
-   ```
+
+    ```env
+    MONGODB_URI=mongodb://localhost:27017/calviora
+    EXPRESS_SESSION_SECRET=your-super-secret-session-key
+    JWT_SECRET=your-jwt-secret-key
+    NODE_ENV=development
+    PORT=3000
+    ```
 
 4. **Start the application**
-   ```bash
-   # Development mode with auto-reload
-   npm run dev
-   
-   # Production mode
-   npm start
-   ```
+
+    ```bash
+    # Development mode with auto-reload
+    npm run dev
+
+    # Production mode
+    npm start
+    ```
 
 ## Available Scripts
 
@@ -73,21 +77,25 @@ A modern, secure e-commerce platform built with Node.js, Express.js, and MongoDB
 ## API Routes
 
 ### Public Routes
+
 - `GET /` - Home page
 - `GET /shop` - Product listing (requires authentication)
 
 ### User Routes
+
 - `POST /users/register` - User registration
 - `POST /users/login` - User login
 - `GET /users/logout` - User logout
 
 ### Cart & Orders
+
 - `GET /cart` - View cart
 - `GET /cart/add/:productid` - Add product to cart
 - `POST /cart/update` - Update cart quantities
 - `POST /checkout` - Process order
 
 ### Admin Routes
+
 - `/owners/*` - Owner/admin management routes
 - `/products/*` - Product management routes
 
@@ -103,6 +111,7 @@ A modern, secure e-commerce platform built with Node.js, Express.js, and MongoDB
 ## Development
 
 ### Code Quality
+
 This project uses ESLint and Prettier for code quality and formatting:
 
 ```bash
@@ -117,6 +126,7 @@ npm run format
 ```
 
 ### Testing
+
 ```bash
 # Run all tests
 npm test
@@ -165,13 +175,13 @@ Calviora/
 
 ## Environment Variables
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `MONGODB_URI` | MongoDB connection string | Yes |
-| `EXPRESS_SESSION_SECRET` | Secret key for session encryption | Yes |
-| `JWT_SECRET` | Secret key for JWT tokens | Yes |
-| `NODE_ENV` | Environment (development/production) | No |
-| `PORT` | Server port number | No |
+| Variable                 | Description                          | Required |
+| ------------------------ | ------------------------------------ | -------- |
+| `MONGODB_URI`            | MongoDB connection string            | Yes      |
+| `EXPRESS_SESSION_SECRET` | Secret key for session encryption    | Yes      |
+| `JWT_SECRET`             | Secret key for JWT tokens            | Yes      |
+| `NODE_ENV`               | Environment (development/production) | No       |
+| `PORT`                   | Server port number                   | No       |
 
 ## License
 

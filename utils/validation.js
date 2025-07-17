@@ -21,7 +21,9 @@ const validationRules = {
             .isLength({ min: 6, max: 100 })
             .withMessage('Password must be between 6 and 100 characters')
             .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
-            .withMessage('Password must contain at least one lowercase letter, one uppercase letter, and one number'),
+            .withMessage(
+                'Password must contain at least one lowercase letter, one uppercase letter, and one number'
+            ),
 
         body('phone')
             .optional()
@@ -35,9 +37,7 @@ const validationRules = {
             .normalizeEmail()
             .withMessage('Please provide a valid email address'),
 
-        body('password')
-            .notEmpty()
-            .withMessage('Password is required'),
+        body('password').notEmpty().withMessage('Password is required'),
     ],
 
     // Product validation
@@ -74,13 +74,12 @@ const validationRules = {
 
     // Cart validation
     cartUpdate: [
-        body('productId')
-            .custom((value) => {
-                if (!mongoose.Types.ObjectId.isValid(value)) {
-                    throw new Error('Invalid product ID');
-                }
-                return true;
-            }),
+        body('productId').custom((value) => {
+            if (!mongoose.Types.ObjectId.isValid(value)) {
+                throw new Error('Invalid product ID');
+            }
+            return true;
+        }),
 
         body('quantity')
             .isInt({ min: 0, max: 5 })
@@ -89,23 +88,21 @@ const validationRules = {
 
     // MongoDB ObjectId validation
     mongoId: [
-        param('id')
-            .custom((value) => {
-                if (!mongoose.Types.ObjectId.isValid(value)) {
-                    throw new Error('Invalid ID format');
-                }
-                return true;
-            }),
+        param('id').custom((value) => {
+            if (!mongoose.Types.ObjectId.isValid(value)) {
+                throw new Error('Invalid ID format');
+            }
+            return true;
+        }),
     ],
 
     mongoProductId: [
-        param('productid')
-            .custom((value) => {
-                if (!mongoose.Types.ObjectId.isValid(value)) {
-                    throw new Error('Invalid product ID format');
-                }
-                return true;
-            }),
+        param('productid').custom((value) => {
+            if (!mongoose.Types.ObjectId.isValid(value)) {
+                throw new Error('Invalid product ID format');
+            }
+            return true;
+        }),
     ],
 };
 
@@ -114,7 +111,7 @@ const handleValidationErrors = (req, res, next) => {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-        const errorMessages = errors.array().map(error => error.msg);
+        const errorMessages = errors.array().map((error) => error.msg);
         req.flash('message', errorMessages.join('. '));
         return res.redirect('back');
     }
@@ -139,7 +136,9 @@ const handleApiValidationErrors = (req, res, next) => {
 
 // Sanitize input to prevent XSS
 const sanitizeInput = (input) => {
-    if (typeof input !== 'string') {return input;}
+    if (typeof input !== 'string') {
+        return input;
+    }
 
     return input
         .replace(/[<>]/g, '') // Remove potential HTML tags
@@ -149,10 +148,12 @@ const sanitizeInput = (input) => {
 // Validate environment variables
 const validateEnvironment = () => {
     const required = ['MONGODB_URI', 'EXPRESS_SESSION_SECRET'];
-    const missing = required.filter(key => !process.env[key]);
+    const missing = required.filter((key) => !process.env[key]);
 
     if (missing.length > 0) {
-        throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
+        throw new Error(
+            `Missing required environment variables: ${missing.join(', ')}`
+        );
     }
 };
 
