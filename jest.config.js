@@ -1,0 +1,20 @@
+module.exports = {
+    testEnvironment: 'node',
+    coverageDirectory: 'coverage',
+    collectCoverageFrom: [
+        '**/*.js',
+        '!node_modules/**',
+        '!coverage/**',
+        '!tests/**',
+        '!eslint.config.js',
+        '!jest.config.js',
+        '!healthcheck.js',
+    ],
+    testMatch: ['**/tests/**/*.test.js', '**/tests/**/*.spec.js'],
+    setupFiles: ['<rootDir>/tests/setup.js'],
+    verbose: true,
+    forceExit: true,
+    clearMocks: true,
+    resetMocks: true,
+    restoreMocks: true,
+};
